@@ -1,5 +1,6 @@
 package com.example.car_booking.controller;
 
+import com.example.car_booking.dto.CarDto;
 import com.example.car_booking.entities.ResponseModel;
 import com.example.car_booking.entities.Car;
 import com.example.car_booking.entities.User;
@@ -30,7 +31,7 @@ public class CarController {
     // POST /cars - Add a new car to the fleet
     @PostMapping("/cars")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ResponseModel<Car>> addCar(@RequestBody Car car) {
+    public ResponseEntity<ResponseModel<Car>> addCar(@RequestBody CarDto car) {
         ResponseModel<Car> response = carService.addCar(car);
         return new ResponseEntity<>(response, response.getStatus());
     }
@@ -38,8 +39,8 @@ public class CarController {
     // PUT /cars/{id} - Update car details (e.g., availability)
     @PutMapping("/cars/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ResponseModel<Car>> updateCar(@PathVariable Long id, @RequestBody Car car) {
-        ResponseModel<Car> response = carService.updateCar(id, car);
+    public ResponseEntity<ResponseModel<Car>> updateCar(@PathVariable Long id, @RequestBody CarDto carDto) {
+        ResponseModel<Car> response = carService.updateCar(id, carDto);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
