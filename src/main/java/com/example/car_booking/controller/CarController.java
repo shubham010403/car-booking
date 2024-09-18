@@ -1,6 +1,8 @@
 package com.example.car_booking.controller;
 
 import com.example.car_booking.dto.CarDto;
+import com.example.car_booking.dto.CarResDto;
+import com.example.car_booking.dto.UserResDto;
 import com.example.car_booking.entities.ResponseModel;
 import com.example.car_booking.entities.Car;
 import com.example.car_booking.entities.User;
@@ -31,16 +33,16 @@ public class CarController {
     // POST /cars - Add a new car to the fleet
     @PostMapping("/cars")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ResponseModel<Car>> addCar(@RequestBody CarDto car) {
-        ResponseModel<Car> response = carService.addCar(car);
+    public ResponseEntity<ResponseModel<CarResDto>> addCar(@RequestBody CarDto car) {
+        ResponseModel<CarResDto> response = carService.addCar(car);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
     // PUT /cars/{id} - Update car details (e.g., availability)
     @PutMapping("/cars/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ResponseModel<Car>> updateCar(@PathVariable Long id, @RequestBody CarDto carDto) {
-        ResponseModel<Car> response = carService.updateCar(id, carDto);
+    public ResponseEntity<ResponseModel<CarResDto>> updateCar(@PathVariable Long id, @RequestBody CarDto carDto) {
+        ResponseModel<CarResDto> response = carService.updateCar(id, carDto);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
@@ -53,8 +55,8 @@ public class CarController {
     }
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ResponseModel<List<User>>> getAllUsers() {
-        ResponseModel<List<User>> response = carService.getAllUsers();
+    public ResponseEntity<ResponseModel<List<UserResDto>>> getAllUsers() {
+        ResponseModel<List<UserResDto>> response = carService.getAllUsers();
         return new ResponseEntity<>(response, response.getStatus());
     }
 }

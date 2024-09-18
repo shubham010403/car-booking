@@ -1,6 +1,8 @@
 package com.example.car_booking.service.serviceImpl;
 
 import com.example.car_booking.dto.BookingDto;
+import com.example.car_booking.dto.BookingResDto;
+import com.example.car_booking.dto.CarResDto;
 import com.example.car_booking.entities.Booking;
 import com.example.car_booking.entities.Car;
 import com.example.car_booking.entities.ResponseModel;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class UserService implements IUserService {
 
@@ -32,13 +36,14 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
 
     @Override
-    public ResponseModel<List<Car>> getAvailableCars() {
-        List<Car> availableCars = carRepository.findByAvailabilityTrue();
+    public ResponseModel<List<CarResDto>> getAvailableCars() {
+        List<CarResDto> availableCars = carRepository.findByAvailabilityTrue().stream().map(this::convertToCarResDto)
+                .collect(Collectors.toList());
         return new ResponseModel<>("Available cars retrieved", HttpStatus.OK, availableCars);
     }
 
     @Override
-    public ResponseModel<Booking> bookCar(Long carId) {
+    public ResponseModel<BookingResDto> bookCar(Long carId) {
         Optional<Car> carOptional = carRepository.findById(carId);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -61,7 +66,7 @@ public class UserService implements IUserService {
                 car.setAvailability(false);
                 carRepository.save(car);
 
-                return new ResponseModel<>("Car booked successfully", HttpStatus.CREATED, booking);
+                return new ResponseModel<>("Car booked successfully", HttpStatus.CREATED, convertToBookingResDto(booking));
             } else {
                 return new ResponseModel<>("Car is not available", HttpStatus.BAD_REQUEST, null);
             }
@@ -71,13 +76,35 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResponseModel<List<Booking>> getUserBookings(Long userId) {
+    public ResponseModel<List<BookingResDto>> getUserBookings(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
-            List<Booking> bookings = bookingRepository.findByUserId(userId);
+            List<BookingResDto> bookings = bookingRepository.findByUserId(userId).stream().map(this::convertToBookingResDto)
+                    .collect(Collectors.toList());
             return new ResponseModel<>("User bookings retrieved", HttpStatus.OK, bookings);
         } else {
             return new ResponseModel<>("User not found", HttpStatus.NOT_FOUND, null);
         }
     }
+    public CarResDto convertToCarResDto(Car car){
+        CarResDto carResDto = new CarResDto();
+        carResDto.setId(car.getId());
+        carResDto.setModel(car.getModel());
+        carResDto.setBrand(car.getBrand());
+        carResDto.setAvailability(car.isAvailability());
+        carResDto.setRentalPrice(car.getRentalPrice());
+
+        return carResDto;
+    }
+
+    public BookingResDto convertToBookingResDto(Booking booking){
+        BookingResDto bookingResDto = new BookingResDto();
+        bookingResDto.setId(booking.getId());
+        bookingResDto.setUser(booking.getUser());
+        bookingResDto.setCar(booking.getCar());
+        bookingResDto.setBookingDate(booking.getBookingDate());
+        bookingResDto.setReturnDate(booking.getReturnDate());
+        return bookingResDto;
+    }
+
 }

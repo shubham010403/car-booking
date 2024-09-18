@@ -1,5 +1,7 @@
 package com.example.car_booking.controller;
 
+import com.example.car_booking.dto.BookingResDto;
+import com.example.car_booking.dto.CarResDto;
 import com.example.car_booking.entities.ResponseModel;
 import com.example.car_booking.entities.Booking;
 import com.example.car_booking.entities.Car;
@@ -22,24 +24,24 @@ public class UserController {
     // GET /cars - Browse available cars (User access)
     @GetMapping("/cars")
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<ResponseModel<List<Car>>> getAvailableCars() {
-        ResponseModel<List<Car>> response = userService.getAvailableCars();
+    public ResponseEntity<ResponseModel<List<CarResDto>>> getAvailableCars() {
+        ResponseModel<List<CarResDto>> response = userService.getAvailableCars();
         return new ResponseEntity<>(response, response.getStatus());
     }
 
     // POST /book/{carId} - Book a car (User access)
     @PostMapping("/book/{carId}")
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<ResponseModel<Booking>> bookCar(@PathVariable Long carId) {
-        ResponseModel<Booking> response = userService.bookCar(carId);
+    public ResponseEntity<ResponseModel<BookingResDto>> bookCar(@PathVariable Long carId) {
+        ResponseModel<BookingResDto> response = userService.bookCar(carId);
         return new ResponseEntity<>(response, response.getStatus());
     }
 
     // GET /bookings - View the user's bookings (User access)
     @GetMapping("/bookings/{userId}")
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<ResponseModel<List<Booking>>> getUserBookings(@PathVariable Long userId) {
-        ResponseModel<List<Booking>> response = userService.getUserBookings(userId);
+    public ResponseEntity<ResponseModel<List<BookingResDto>>> getUserBookings(@PathVariable Long userId) {
+        ResponseModel<List<BookingResDto>> response = userService.getUserBookings(userId);
         return new ResponseEntity<>(response, response.getStatus());
     }
 

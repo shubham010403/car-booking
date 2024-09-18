@@ -1,6 +1,9 @@
 package com.example.car_booking.service.serviceImpl;
 
 import com.example.car_booking.dto.CarDto;
+import com.example.car_booking.dto.CarResDto;
+import com.example.car_booking.dto.UserDto;
+import com.example.car_booking.dto.UserResDto;
 import com.example.car_booking.entities.ResponseModel;
 import com.example.car_booking.entities.Booking;
 import com.example.car_booking.entities.Car;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CarService implements ICarService {
@@ -30,23 +34,17 @@ public class CarService implements ICarService {
     private BookingRepository bookingRepository;
 
     @Override
-    public ResponseModel<Car> addCar(CarDto carDto) {
+    public ResponseModel<CarResDto> addCar(CarDto carDto) {
         // Convert CarDto to Car entity
-        Car car = new Car();
-        car.setModel(carDto.getModel());
-        car.setBrand(carDto.getBrand());
-        car.setAvailability(carDto.isAvailability());
-        car.setRentalPrice(carDto.getRentalPrice());
-
+        Car car = convertToEntity(carDto);
         // Save the Car entity
         Car savedCar = carRepository.save(car);
-
-        return new ResponseModel<>("Car added successfully", HttpStatus.CREATED, savedCar);
+        return new ResponseModel<>("Car added successfully", HttpStatus.CREATED, convertToDto(savedCar));
     }
 
 
     @Override
-    public ResponseModel<Car> updateCar(Long id, CarDto carDto) {
+    public ResponseModel<CarResDto> updateCar(Long id, CarDto carDto) {
         Optional<Car> carOptional = carRepository.findById(id);
         if (carOptional.isPresent()) {
             Car existingCar = carOptional.get();
@@ -60,7 +58,7 @@ public class CarService implements ICarService {
             // Save the updated car entity
             Car updatedCar = carRepository.save(existingCar);
 
-            return new ResponseModel<>("Car updated successfully", HttpStatus.OK, updatedCar);
+            return new ResponseModel<>("Car updated successfully", HttpStatus.OK, convertToDto(updatedCar));
         } else {
             return new ResponseModel<>("Car not found", HttpStatus.NOT_FOUND, null);
         }
@@ -78,9 +76,41 @@ public class CarService implements ICarService {
     }
 
     @Override
-    public ResponseModel<List<User>> getAllUsers() {
-        List<User> users = userRepository.findAll();
+    public ResponseModel<List<UserResDto>> getAllUsers() {
+        List<UserResDto> users = userRepository.findAll().stream()
+                .map(this::convertToUserDto)
+                .collect(Collectors.toList());
         return new ResponseModel<>("List of users retrieved", HttpStatus.OK, users);
+    }
+
+    public Car convertToEntity(CarDto carDto){
+        Car car = new Car();
+        car.setModel(carDto.getModel());
+        car.setBrand(carDto.getBrand());
+        car.setAvailability(carDto.isAvailability());
+        car.setRentalPrice(carDto.getRentalPrice());
+
+        return car;
+    }
+
+    public CarResDto convertToDto(Car car){
+        CarResDto carResDto = new CarResDto();
+        carResDto.setId(car.getId());
+        carResDto.setModel(car.getModel());
+        carResDto.setBrand(car.getBrand());
+        carResDto.setAvailability(car.isAvailability());
+        carResDto.setRentalPrice(car.getRentalPrice());
+
+        return carResDto;
+    }
+
+    public UserResDto convertToUserDto(User user){
+        UserResDto userResDto = new UserResDto();
+        userResDto.setId(user.getId());
+        userResDto.setName(user.getName());
+        userResDto.setEmail(user.getEmail());
+        userResDto.setRole(user.getRole());
+        return userResDto;
     }
 
 }
