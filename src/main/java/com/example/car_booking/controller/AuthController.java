@@ -1,6 +1,8 @@
 package com.example.car_booking.controller;
 
 import com.example.car_booking.dto.AuthRequestDto;
+import com.example.car_booking.dto.UserDto;
+import com.example.car_booking.entities.ResponseModel;
 import com.example.car_booking.entities.User;
 import com.example.car_booking.service.IAuthService;
 import com.example.car_booking.service.ICarService;
@@ -32,13 +34,15 @@ public class AuthController {
     private IAuthService authService;
 
     @PostMapping("/register")
-    public String addNewUser(@RequestBody User user){
-        return authService.addUser(user);
+    public ResponseModel<String> addNewUser(@RequestBody UserDto user){
+        ResponseModel<String> responseModel;
+        responseModel = authService.addUser(user);
+        return responseModel;
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<String> authenticateAndGetToken(@RequestBody AuthRequestDto authRequestDto) {
-        String token = authService.authenticateAndGetToken(authRequestDto);
+    public ResponseEntity<ResponseModel<String>> authenticateAndGetToken(@RequestBody AuthRequestDto authRequestDto) {
+        ResponseModel<String> token = authService.authenticateAndGetToken(authRequestDto);
         return ResponseEntity.ok(token);
     }
 
